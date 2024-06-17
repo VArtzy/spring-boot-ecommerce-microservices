@@ -1,0 +1,14 @@
+### Get product
+GET http://localhost:8080/api/product
+Accept: application/json
+X-Auth-Token: 123456
+
+### Create product
+POST http://localhost:8080/api/product
+Content-Type: application/json
+
+{
+    "name": "iPhone 15",
+    "description": "The brand new iPhone 15 from Apple",
+    "price": 1500
+}

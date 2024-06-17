@@ -1,0 +1,9 @@
+### Submit order
+POST http://localhost:8081/api/order
+Content-Type: application/json
+
+{
+    "skuCode": "iphone_15",
+    "price": 3000,
+    "quantity": 101
+}

@@ -3,6 +3,7 @@ package vartz.microservices.order.service;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,14 @@ import vartz.microservices.order.repository.OrderRepository;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final InventoryClient inventoryClient;
+    private final RabbitTemplate rabbitTemplate;
 
     public void placeOrder(OrderRequest orderRequest) {
         boolean inStock = inventoryClient.inInStock(orderRequest.skuCode(), orderRequest.quantity());
         if (inStock) {
             var order = mapToOrder(orderRequest);
             orderRepository.save(order);
+            rabbitTemplate.convertAndSend("notification-exchange", "notification", order.getOrderNumber());
             log.info("Order {} is saved", order.getOrderNumber());
         } else {
             throw new RuntimeException("Product with Skucode " + orderRequest.skuCode() + " is out of stock");

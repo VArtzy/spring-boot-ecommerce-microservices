@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api-gateway
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - env:
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY
+              value: ' TRACE'
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+          image: vartzy/api-gateway:latest
+          name: api-gateway
+          ports:
+            - containerPort: 9001
+          resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api-gateway
+  name: api-gateway
+spec:
+  type: LoadBalancer
+  ports:
+    - name: "9001"
+      port: 9001
+      targetPort: 9001
+  selector:
+    app: api-gateway
+status:
+  loadBalancer: {}

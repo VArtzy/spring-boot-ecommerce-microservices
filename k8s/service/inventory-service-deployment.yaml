@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: inventory-service
+  name: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-inventory:3307/inventory_service
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+          image: vartzy/inventory-service:latest
+          name: inventory-service
+          ports:
+            - containerPort: 8082
+          resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: inventory-service
+  name: inventory-service
+spec:
+  ports:
+    - name: "8082"
+      port: 8082
+      targetPort: 8082
+  selector:
+    app: inventory-service
+status:
+  loadBalancer: {}

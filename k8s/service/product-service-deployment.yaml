@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: service
   labels:
     app: product-service
   name: product-service
@@ -18,6 +19,12 @@ spec:
     spec:
       containers:
         - env:
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: prometheus
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: http://zipkin.infrastructure:9411/api/v2/spans
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://mongo.infrastructure:27017/product-service
             - name: SPRING_PROFILES_ACTIVE
               value: docker
           image: vartzy/product-service:latest
@@ -31,6 +38,7 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: service
   labels:
     app: product-service
   name: product-service

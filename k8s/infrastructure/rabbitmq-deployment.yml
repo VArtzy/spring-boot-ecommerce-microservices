@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   name: rabbitmq
-  namespace: rabbitmq
 spec:
   replicas: 1
   selector:
@@ -42,8 +42,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: infrastructure
   name: rabbitmq-pvc
-  namespace: rabbitmq
 spec:
   accessModes:
     - ReadWriteOnce
@@ -54,10 +54,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
   name: rabbitmq
-  namespace: rabbitmq
 spec:
-  type: LoadBalancer
   ports:
     - port: 5672
       targetPort: 5672

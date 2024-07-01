@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   labels:
     app: keycloak
   name: keycloak
@@ -20,6 +21,7 @@ spec:
       containers:
         - args:
             - start-dev
+            - "--http-port=8181"
           env:
             - name: DB_ADDR
               value: mysql
@@ -35,7 +37,7 @@ spec:
               value: admin
             - name: KEYCLOAK_ADMIN_PASSWORD
               value: admin
-          image: quay.io/keycloak/keycloak:18.0.0
+          image: quay.io/keycloak/keycloak:25.0.0
           name: keycloak
           ports:
             - containerPort: 8181
@@ -53,14 +55,17 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
   labels:
     app: keycloak
   name: keycloak
 spec:
+  type: NodePort
   ports:
     - name: "8181"
       port: 8181
       targetPort: 8181
+      nodePort: 30001
   selector:
     app: keycloak
 status:
@@ -69,6 +74,7 @@ status:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: infrastructure
   creationTimestamp: null
   labels:
     app: keycloak-claim0
@@ -80,20 +86,3 @@ spec:
     requests:
       storage: 100Mi
 status: {}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: auth-ingress
-spec:
-  rules:
-    - host: "auth.localtest.me"
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: keycloak
-                port:
-                  number: 8181

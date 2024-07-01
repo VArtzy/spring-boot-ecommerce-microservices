@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   labels:
     app: zipkin
   name: zipkin
@@ -27,6 +28,7 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
   labels:
     app: zipkin
   name: zipkin

@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   labels:
     app: mysql-order
   name: mysql-order
@@ -35,6 +36,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
   labels:
     app: mysql-order
   name: mysql-order
@@ -51,6 +53,7 @@ status:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: infrastructure
   labels:
     app: mysql-order-claim0
   name: mysql-order-claim0

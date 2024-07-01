@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: service
   labels:
     app: inventory-service
   name: inventory-service
@@ -17,8 +18,10 @@ spec:
     spec:
       containers:
         - env:
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: http://zipkin.infrastructure:9411/api/v2/spans
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://mysql-inventory:3307/inventory_service
+              value: jdbc:mysql://mysql-inventory.infrastructure:3306/inventory_service
             - name: SPRING_PROFILES_ACTIVE
               value: docker
           image: vartzy/inventory-service:latest
@@ -32,6 +35,7 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: service
   labels:
     app: inventory-service
   name: inventory-service

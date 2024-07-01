@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   labels:
     app: mongo
   name: mongo
@@ -9,32 +10,33 @@ spec:
   selector:
     matchLabels:
       app: mongo
-    strategy:
-      type: Recreate
-    template:
-      metadata:
-        labels:
-          app: mongo
-      spec:
-        containers:
-          - image: mongo:8-rc
-            name: mongo
-            ports:
-              - containerPorts: 27017
-            resources: {}
-            volumeMounts:
-              - mountPath: /data/db
-                name: mongo-claim0
-            restartPolicy: Always
-            volumes:
-              - name: mongo-claim0
-                persistentVolumeClaim:
-                  claimName: mongo-claim0
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - image: mongo:8.0-rc
+          name: mongo
+          ports:
+            - containerPort: 27017
+          resources: {}
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-claim0
+      restartPolicy: Always
+      volumes:
+        - name: mongo-claim0
+          persistentVolumeClaim:
+            claimName: mongo-claim0
 status: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
   labels:
     app: mongo
   name: mongo
@@ -42,15 +44,16 @@ spec:
   ports:
     - name: "27017"
       port: 27017
-      targetPath: 27017
+      targetPort: 27017
   selector:
     app: mongo
-  status:
-    loadBalancer: {}
+status:
+  loadBalancer: {}
 ---
 apiVersion: v1
-kind: persistentVolumeClaim
+kind: PersistentVolumeClaim
 metadata:
+  namespace: infrastructure
   labels:
     app: mongo-claim0
   name: mongo-claim0
@@ -58,6 +61,6 @@ spec:
   accessModes:
     - ReadWriteOnce
   resources:
-    request:
+    requests:
       storage: 100Mi
 status: {}

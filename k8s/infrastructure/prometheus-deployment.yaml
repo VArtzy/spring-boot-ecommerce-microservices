@@ -1,69 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: infrastructure
+  name: prometheus-config
+  labels:
+    app: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval:     15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: 'product_service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['product-service.service:8080']
+            labels:
+              application: 'Product Service Application'
+      - job_name: 'order_service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['order-service.service:8081']
+            labels:
+              application: 'Order Service Application'
+      - job_name: 'inventory_service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['inventory-service.service:8082']
+            labels:
+              application: 'Inventory Service Application'
+      - job_name: 'notification_service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['notification-service.service:8083']
+            labels:
+              application: 'Notification Service Application'
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: F:\tools\kompose.exe convert
-    kompose.version: 1.26.1 (a9d05d509)
-  creationTimestamp: null
+  namespace: infrastructure
+  name: prometheus-deployment
   labels:
     app: prometheus
-  name: prometheus
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: prometheus
-  strategy:
-    type: Recreate
   template:
     metadata:
-
       labels:
         app: prometheus
     spec:
       containers:
-        - image: prom/prometheus:v2.37.1
-          name: prometheus
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
           ports:
             - containerPort: 9090
-          resources: {}
           volumeMounts:
-            - mountPath: /etc/prometheus/prometheus.yml
-              name: prometheus-claim0
-      restartPolicy: Always
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
       volumes:
-        - name: prometheus-claim0
-          persistentVolumeClaim:
-            claimName: prometheus-claim0
-status: {}
+        - name: prometheus-config-volume
+          configMap:
+            name: prometheus-config
+        - name: prometheus-storage-volume
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
+  name: prometheus
   labels:
     app: prometheus
-  name: prometheus
 spec:
   ports:
-    - name: "9090"
-      port: 9090
+    - port: 9090
       targetPort: 9090
   selector:
     app: prometheus
-status:
-  loadBalancer: {}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  creationTimestamp: null
-  labels:
-    app: prometheus-claim0
-  name: prometheus-claim0
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi
-status: {}

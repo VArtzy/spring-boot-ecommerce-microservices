@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: service
   labels:
     app: api-gateway
   name: api-gateway
@@ -17,6 +18,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              value: http://zipkin.infrastructure:9411/api/v2/spans
             - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY
               value: ' TRACE'
             - name: SPRING_PROFILES_ACTIVE
@@ -32,6 +35,7 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: service
   labels:
     app: api-gateway
   name: api-gateway

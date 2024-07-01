@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   labels:
     app: keycloak-mysql
   name: keycloak-mysql
@@ -26,7 +27,7 @@ spec:
               value: root
             - name: MYSQL_USER
               value: keycloak
-          image: mysql:5.7
+          image: mysql:lts
           name: keycloak-mysql
           resources: {}
           volumeMounts:
@@ -42,6 +43,7 @@ status: {}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: infrastructure
   creationTimestamp: null
   labels:
     app: keycloak-mysql-claim0

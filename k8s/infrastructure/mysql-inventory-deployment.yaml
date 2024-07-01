@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: infrastructure
   labels:
     app: mysql-inventory
   name: mysql-inventory
@@ -21,7 +22,7 @@ spec:
           image: mysql:lts
           name: mysql-inventory
           ports:
-            - containerPort: 3307
+            - containerPort: 3306
           resources: {}
           volumeMounts:
             - mountPath: /var/lib/mysql
@@ -35,14 +36,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: infrastructure
   labels:
     app: mysql-inventory
   name: mysql-inventory
 spec:
   ports:
-    - name: "3307"
-      port: 3307
-      targetPort: 3307
+    - name: "3306"
+      port: 3306
+      targetPort: 3306
   selector:
     app: mysql-inventory
 status:
@@ -51,6 +53,7 @@ status:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: infrastructure
   labels:
     app: mysql-inventory-claim0
   name: mysql-inventory-claim0
